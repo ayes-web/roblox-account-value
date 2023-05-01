@@ -71,6 +71,17 @@ impl Application {
         self.find_account_value_button.set_disabled(false);
     }
 
+    fn set_error(&self, error: &str) {
+        self.error_text_div.set_inner_text(error);
+        self.error_text_div.set_hidden(false);
+
+        self.account_info_div.class_list().set_value("hidden");
+        self.loading_bar.set_hidden(true);
+
+        self.account_id_input.set_disabled(false);
+        self.find_account_value_button.set_disabled(false);
+    }
+
     fn lock_ui(&self) {
         self.account_id_input.set_disabled(true);
         self.find_account_value_button.set_disabled(true);
@@ -115,19 +126,11 @@ pub async fn run() {
                         inner_app.robux_value.set_inner_text(&format!("Robux: {}", value.total_robux));
                         inner_app.robux_value_in_euro.set_inner_text(&format!("Euros: {}€", value.in_euro));
                     } else {
-                        inner_app.error_text_div.set_inner_text(
-                            "Please make sure the account has inventory set as public",
-                        );
-                        inner_app.error_text_div.set_hidden(false);
-                        inner_app.unlock_ui();
+                        inner_app.set_error("Please make sure the account has inventory set as public");
                         return;
                     }
                     Err(_) => {
-                        inner_app.error_text_div.set_inner_text(
-                            "Please make sure the account has inventory set as public",
-                        );
-                        inner_app.error_text_div.set_hidden(false);
-                        inner_app.unlock_ui();
+                        inner_app.set_error("Please make sure the account has inventory set as public");
                         return;
                     }
                 }
@@ -139,17 +142,13 @@ pub async fn run() {
                         inner_app.username.set_inner_text(&info.username);
                     }
                     Err(_) => {
-                        inner_app.error_text_div.set_inner_text(
-                            "Error getting profile info",
-                        );
-                        inner_app.error_text_div.set_hidden(false);
-                        inner_app.unlock_ui();
+                        inner_app.set_error("Error getting profile info");
                         return;
                     }
                 };
             } else {
-                inner_app.error_text_div.set_inner_text("Please insert a valid account id");
-                inner_app.error_text_div.set_hidden(false);
+                inner_app.set_error("Please insert a valid account id");
+                return
             }
 
             inner_app.unlock_ui()
