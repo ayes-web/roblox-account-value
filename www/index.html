@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Roblox account value calculator</title>
+
+    <link rel="stylesheet" href="style.scss">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta name="description" content="Webapp to calculate value of a roblox account">
+
+    <script type="module" src="./bootstrap.js"></script>
+</head>
+
+<body>
+<noscript>
+    <p class="text-center">This page contains webassembly and javascript content, please enable javascript in your
+        browser.</p>
+</noscript>
+
+<div class="container">
+    <div id="repo-link">
+      <a href="https://github.com/ayes-web/roblox-account-value">Source</a>
+    </div>
+
+    <h1 class="text-center">Roblox account value calculator</h1>
+
+    <h2>Calculates account value based on limited items</h2>
+    <input id="account_id_input" type="text" placeholder="Please insert account ID" disabled>
+    <button id="find_account_value_button" disabled>Find account value</button>
+
+    <p id="exchange-rate"></p>
+
+    <div id="error-text" hidden></div>
+        <div id="loading-bar" hidden>Loading...</div>
+
+    <div id="account-info" class="hidden">
+        <div id="avatar-row">
+            <img id="avatar">
+            <div id="username"></div>
+        </div>
+
+        <div id="values">
+            <h2>Account value</h2>
+            <p id="robux-value"></p>
+            <p id="robux-value-in-euro"></p>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+@import "common-web-styles/common";
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
+#repo-link {
+  text-align: left;
+  margin-top: 2vh;
+}
+
+#error-text {
+  background-color: red;
+  padding: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+
+  transition-duration: 0.1s;
+}
+
+#account-info {
+  display: flex;
+}
+
+#avatar-row {
+  flex-direction: column;
+}
+
+#username {
+  text-align: center;
+}
+#values {
+  flex-direction: column;
+}
+#avatar {
+  display: flex;
+  width: 200px;
+}

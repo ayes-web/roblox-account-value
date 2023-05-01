@@ -1,0 +1,6 @@
+/target
+/pkg
+/www/node_modules
+/www/dist
+.idea
+result
