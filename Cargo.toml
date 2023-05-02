@@ -30,6 +30,8 @@ features = [
   'HtmlElement',
   'HtmlImageElement',
   'HtmlParagraphElement',
+  'HtmlSpanElement',
+  'HtmlAnchorElement',
   'DomTokenList',
   'Document',
   'Event',

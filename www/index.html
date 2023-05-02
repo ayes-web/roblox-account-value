@@ -13,40 +13,57 @@
 </head>
 
 <body>
-<noscript>
-    <p class="text-center">This page contains webassembly and javascript content, please enable javascript in your
-        browser.</p>
-</noscript>
+    <noscript>
+        <p class="text-center">This page contains webassembly and javascript content, please enable javascript in your
+            browser.</p>
+    </noscript>
 
-<div class="container">
-    <div id="repo-link">
-      <a href="https://github.com/ayes-web/roblox-account-value">Source</a>
-    </div>
-
-    <h1 class="text-center">Roblox account value calculator</h1>
-
-    <h2>Calculates account value based on limited items</h2>
-    <input id="account_id_input" type="text" placeholder="Please insert account ID" disabled>
-    <button id="find_account_value_button" disabled>Find account value</button>
-
-    <p id="exchange-rate"></p>
-
-    <div id="error-text" hidden></div>
-        <div id="loading-bar" hidden>Loading...</div>
-
-    <div id="account-info" class="hidden">
-        <div id="avatar-row">
-            <img id="avatar">
-            <div id="username"></div>
+    <div class="container">
+        <div id="repo-link" class="no-select">
+            <a href="https://github.com/ayes-web/roblox-account-value">Source</a>
         </div>
 
-        <div id="values">
-            <h2>Account value</h2>
-            <p id="robux-value"></p>
-            <p id="robux-value-in-euro"></p>
+        <h1 class="text-center no-select">Roblox account value calculator</h1>
+
+        <div id="menu" class="no-select">
+            <input id="account_id_input" type="text" placeholder="Please insert account ID" disabled>
+            <button id="find_account_value_button" disabled>Find account value</button>
+        </div>
+
+        <div id="error-text" hidden></div>
+        <div id="loading-bar" class="no-select" hidden>Loading...</div>
+
+        <div id="account-info" class="hidden">
+            <div class="line-break"></div>
+
+            <div id="account-rows">
+                <div id="avatar-row">
+                    <img class="no-select" id="avatar">
+
+                    <div id="username-holder-wrapper">
+                        <a id="username-holder" target="_blank">
+                            <span id="displayname"></span>
+                            <span id="username"></span>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="values">
+                    <h2 class="no-select">Account value</h2>
+
+                    <div id="robux-value"></div>
+                    <div id="robux-value-in-euro"></div>
+
+                    <p id="exchange-rate"></p>
+                </div>
+            </div>
+
+            <div class="line-break"></div>
+
+            <h2 class="no-select">Inventory</h2>
+            <div id="inventory"></div>
         </div>
     </div>
-</div>
 </body>
 
 </html>

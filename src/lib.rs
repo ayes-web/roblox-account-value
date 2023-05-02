@@ -3,12 +3,15 @@ use std::rc::Rc;
 use gloo::events::EventListener;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::{Document, HtmlButtonElement, HtmlDivElement, HtmlImageElement, HtmlInputElement, HtmlParagraphElement};
+use web_sys::{
+    Document, HtmlAnchorElement, HtmlButtonElement, HtmlDivElement, HtmlImageElement,
+    HtmlInputElement, HtmlParagraphElement, HtmlSpanElement,
+};
 
 use crate::api::{can_view_inventory, collectibles_account_value, exchange_rate, profile_info};
 
-mod utils;
 mod api;
+mod utils;
 
 trait WrappedGetElementById {
     fn wr_get_element_by_id<T: JsCast>(&self, id: &str) -> T;
@@ -16,14 +19,9 @@ trait WrappedGetElementById {
 
 impl WrappedGetElementById for Document {
     fn wr_get_element_by_id<T: JsCast>(&self, id: &str) -> T {
-        self
-            .get_element_by_id(id)
-            .unwrap()
-            .dyn_into::<T>()
-            .unwrap()
+        self.get_element_by_id(id).unwrap().dyn_into::<T>().unwrap()
     }
 }
-
 
 struct Application {
     document: Document,
@@ -33,9 +31,12 @@ struct Application {
     loading_bar: HtmlDivElement,
     account_info_div: HtmlDivElement,
     avatar: HtmlImageElement,
-    username: HtmlDivElement,
-    robux_value: HtmlParagraphElement,
-    robux_value_in_euro: HtmlParagraphElement,
+    username: HtmlSpanElement,
+    displayname: HtmlSpanElement,
+    username_holder: HtmlAnchorElement,
+    robux_value: HtmlDivElement,
+    robux_value_in_euro: HtmlDivElement,
+    inventory: HtmlDivElement,
 }
 
 impl Application {
@@ -44,27 +45,32 @@ impl Application {
 
         Application {
             document: gloo::utils::document(),
-            account_id_input: document.wr_get_element_by_id::<HtmlInputElement>("account_id_input"),
-            find_account_value_button: document.wr_get_element_by_id::<HtmlButtonElement>("find_account_value_button"),
-            error_text_div: document.wr_get_element_by_id::<HtmlDivElement>("error-text"),
-            loading_bar: document.wr_get_element_by_id::<HtmlDivElement>("loading-bar"),
-            account_info_div: document.wr_get_element_by_id::<HtmlDivElement>("account-info"),
-            avatar: document.wr_get_element_by_id::<HtmlImageElement>("avatar"),
-            username: document.wr_get_element_by_id::<HtmlDivElement>("username"),
-            robux_value: document.wr_get_element_by_id::<HtmlParagraphElement>("robux-value"),
-            robux_value_in_euro: document.wr_get_element_by_id::<HtmlParagraphElement>("robux-value-in-euro"),
+            account_id_input: document.wr_get_element_by_id("account_id_input"),
+            find_account_value_button: document.wr_get_element_by_id("find_account_value_button"),
+            error_text_div: document.wr_get_element_by_id("error-text"),
+            loading_bar: document.wr_get_element_by_id("loading-bar"),
+            account_info_div: document.wr_get_element_by_id("account-info"),
+            avatar: document.wr_get_element_by_id("avatar"),
+            username: document.wr_get_element_by_id("username"),
+            displayname: document.wr_get_element_by_id("displayname"),
+            username_holder: document.wr_get_element_by_id("username-holder"),
+            robux_value: document.wr_get_element_by_id("robux-value"),
+            robux_value_in_euro: document.wr_get_element_by_id("robux-value-in-euro"),
+            inventory: document.wr_get_element_by_id("inventory"),
         }
     }
 
     async fn init(&self) {
-        let exchange_rate_p = self.document.wr_get_element_by_id::<HtmlParagraphElement>("exchange-rate");
+        let exchange_rate_p: HtmlParagraphElement =
+            self.document.wr_get_element_by_id("exchange-rate");
         match exchange_rate().await {
             Ok(exchange_rate) => {
-                exchange_rate_p.set_inner_text(&format!("{} Robux per 1€", exchange_rate.robux_per_euro));
+                exchange_rate_p.set_inner_text(&format!(
+                    "{} Robux per 1€",
+                    exchange_rate.robux_per_euro
+                ));
             }
-            Err(_) => {
-                exchange_rate_p.set_inner_text("0 Robux per 1€")
-            }
+            Err(_) => exchange_rate_p.set_inner_text("0 Robux per 1€"),
         }
 
         self.account_id_input.set_disabled(false);
@@ -117,43 +123,95 @@ pub async fn run() {
         inner_app.lock_ui();
 
         spawn_local(async move {
-            if !input_value.is_empty() {
-                let id = input_value.parse::<u64>().unwrap();
-
-                match can_view_inventory(id).await {
-                    Ok(can_view) => if can_view {
-                        let value = collectibles_account_value(id).await.unwrap();
-                        inner_app.robux_value.set_inner_text(&format!("Robux: {}", value.total_robux));
-                        inner_app.robux_value_in_euro.set_inner_text(&format!("Euros: {}€", value.in_euro));
-                    } else {
-                        inner_app.set_error("Please make sure the account has inventory set as public");
-                        return;
-                    }
-                    Err(_) => {
-                        inner_app.set_error("Please make sure the account has inventory set as public");
-                        return;
-                    }
-                }
-
-                match profile_info(id).await {
-                    Ok(info) => {
-                        inner_app.avatar.set_src(&info.avatar);
-                        inner_app.avatar.set_alt(&format!("{}'s avatar", info.avatar));
-                        inner_app.username.set_inner_text(&info.username);
-                    }
-                    Err(_) => {
-                        inner_app.set_error("Error getting profile info");
-                        return;
-                    }
-                };
-            } else {
+            if input_value.is_empty() {
                 inner_app.set_error("Please insert a valid account id");
-                return
+                return;
             }
+
+            // Should be a valid number due to input checker
+            let id = input_value.parse::<u64>().unwrap();
+
+            if matches!(can_view_inventory(id).await, Err(_) | Ok(false)) {
+                inner_app.set_error("Please make sure the account has inventory set as public");
+                return;
+            }
+
+            let account_value = collectibles_account_value(id).await.unwrap();
+            inner_app
+                .robux_value
+                .set_inner_text(&format!("Robux: {}", account_value.total_robux));
+            inner_app
+                .robux_value_in_euro
+                .set_inner_text(&format!("Euros: {}€", account_value.in_euro));
+
+
+
+            if account_value.collectibles.is_empty() {
+                inner_app.inventory.set_inner_html("No items found :(");
+            } else {
+                inner_app.inventory.set_inner_html(
+                    &account_value
+                .collectibles
+                .iter()
+                .map(|collectible| {
+                    let limited_row = match collectible.serialnumber {
+                        Some(serialnumber) => format!("<div class='collectible-serialnumber'>#{serialnumber}</div>"),
+                        None => String::new(),
+                    };
+
+                    let html = format!(
+                        "<div class='collectible'>
+                            <div class='collectible-title'>
+                                <a href='https://www.roblox.com/catalog/{id}' target='_blank'>{name}</a>
+                            </div>
+
+                            <div class='collectible-thumbnail'>
+                                <img class='no-select' alt='{name}' src='{thumbnail}'>
+                                {limited_row}
+                            </div>
+
+                            <div class='collectible-robux'>
+                                {price} robux
+                            </div>
+                        </div>",
+                        thumbnail = collectible.thumbnail,
+                        id = collectible.id,
+                        name = collectible.name,
+                        price = collectible.price
+                    );
+
+                    html
+                })
+                .collect::<String>()
+                );
+            }
+
+
+            match profile_info(id).await {
+                Ok(info) => {
+                    inner_app.avatar.set_src(&info.avatar);
+                    inner_app
+                        .avatar
+                        .set_alt(&format!("{}'s avatar", info.avatar));
+
+                    inner_app
+                        .username_holder
+                        .set_href(&format!("https://www.roblox.com/users/{id}/profile"));
+                    inner_app.displayname.set_inner_text(&info.displayname);
+                    inner_app
+                        .username
+                        .set_inner_text(&format!("@{}", info.username));
+                }
+                Err(_) => {
+                    inner_app.set_error("Error getting profile info");
+                    return;
+                }
+            };
 
             inner_app.unlock_ui()
         });
-    }).forget();
+    })
+    .forget();
 
     let mut input_checker: Option<u64> = None;
 
@@ -180,5 +238,6 @@ pub async fn run() {
                 },
             }
         }
-    }).forget();
+    })
+    .forget();
 }
