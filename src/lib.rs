@@ -65,10 +65,8 @@ impl Application {
             self.document.wr_get_element_by_id("exchange-rate");
         match exchange_rate().await {
             Ok(exchange_rate) => {
-                exchange_rate_p.set_inner_text(&format!(
-                    "{} Robux per 1€",
-                    exchange_rate.robux_per_euro
-                ));
+                exchange_rate_p
+                    .set_inner_text(&format!("{} Robux per 1€", exchange_rate.robux_per_euro));
             }
             Err(_) => exchange_rate_p.set_inner_text("0 Robux per 1€"),
         }

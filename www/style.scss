@@ -2,13 +2,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 
 :root {
-  --secondary-text-color: rgb(63, 63, 63);
   --limited-color: green
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --secondary-text-color: rgb(192, 192, 192);
     --limited-color: yellow
   }
 }
@@ -17,10 +15,6 @@
   border-bottom: 1px solid var(--secondary-text-color);
   margin-top: 2vh;
   margin-bottom: 2vh;
-}
-
-.no-select {
-  user-select: none;
 }
 
 #repo-link {
@@ -94,6 +88,7 @@
   display: flex;
   flex-wrap: wrap;
 }
+
 .collectible {
   border: 1px solid var(--interactive-border-color);
   background-color: var(--interactive-background-color);
