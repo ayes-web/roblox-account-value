@@ -1,4 +1,4 @@
-{ pkgs, rustPlatform, makeRustPlatform, mkYarnPackage, fetchYarnDeps }: let
+{ pkgs, rustPlatform, makeRustPlatform, mkYarnPackage, fetchYarnDeps, lib }: let
     targetName = "wasm32-unknown-unknown";
 
     wasm-rust = pkgs.rust-bin.stable.latest.default.override {
@@ -40,7 +40,7 @@ mkYarnPackage rec {
 
     offlineCache = fetchYarnDeps {
         yarnLock = src + "/yarn.lock";
-        hash = "sha256-9BZMfrXzVIT+MLS8dGKwDqII57wnYlcARh/u4CAkEb4=";
+        hash = "sha256-MhUNQc/NRciUZJNfJ3IetniwtfxbbBQ7icsytzQJXwI=";
     };
 
     buildPhase = ''
